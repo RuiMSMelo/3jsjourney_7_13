@@ -7,9 +7,12 @@ import {
 } from '@react-three/rapier'
 import { Perf } from 'r3f-perf'
 import { useRef } from 'react'
+import { useFrame } from '@react-three/fiber'
+import * as THREE from 'three'
 
 export default function Experience() {
     const cubeRef = useRef()
+    const twisterRef = useRef()
 
     const cubeJump = () => {
         // console.log(cubeRef.current)
@@ -21,6 +24,19 @@ export default function Experience() {
             z: Math.random() - 0.5,
         })
     }
+
+    useFrame((state) => {
+        const time = state.clock.getElapsedTime()
+        const eulerRotation = new THREE.Euler(0, time * 3, 0)
+        const quaternionRotation = new THREE.Quaternion()
+        quaternionRotation.setFromEuler(eulerRotation)
+        twisterRef.current.setNextKinematicRotation(quaternionRotation)
+
+        const angle = time * 0.5
+        const x = Math.cos(angle) * 2
+        const z = Math.sin(angle) * 2
+        twisterRef.current.setNextKinematicTranslation({ x: x, y: -0.8, z: z })
+    })
 
     return (
         <>
@@ -47,7 +63,7 @@ export default function Experience() {
                     friction={0.7}
                     colliders={false}
                 >
-                    <CuboidCollider args={[0.5, 0.5, 0.5]} mass={0.5} />
+                    <CuboidCollider args={[0.5, 0.5, 0.5]} mass={1} />
                     <mesh castShadow onClick={cubeJump}>
                         <boxGeometry />
                         <meshStandardMaterial color='crimson' />
@@ -58,6 +74,17 @@ export default function Experience() {
                     <mesh receiveShadow position-y={-1.25}>
                         <boxGeometry args={[10, 0.5, 10]} />
                         <meshStandardMaterial color='greenyellow' />
+                    </mesh>
+                </RigidBody>
+                <RigidBody
+                    type='kinematicPosition'
+                    position={[0, -0.8, 0]}
+                    friction={0}
+                    ref={twisterRef}
+                >
+                    <mesh castShadow scale={[0.4, 0.4, 3]}>
+                        <boxGeometry />
+                        <meshStandardMaterial color='cyan' />
                     </mesh>
                 </RigidBody>
             </Physics>
