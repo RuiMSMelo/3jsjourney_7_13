@@ -6,11 +6,13 @@ import {
     Physics,
 } from '@react-three/rapier'
 import { Perf } from 'r3f-perf'
-import { useRef } from 'react'
+import { useState, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 
 export default function Experience() {
+    const [hitSound] = useState(() => new Audio('./hit.mp3'))
+
     const cubeRef = useRef()
     const twisterRef = useRef()
 
@@ -38,6 +40,12 @@ export default function Experience() {
         twisterRef.current.setNextKinematicTranslation({ x: x, y: -0.8, z: z })
     })
 
+    const collisionEnter = () => {
+        // hitSound.currentTime = 0
+        // hitSound.volume = Math.random()
+        // hitSound.play()
+    }
+
     return (
         <>
             <Perf position='top-left' />
@@ -62,6 +70,7 @@ export default function Experience() {
                     restitution={0.5}
                     friction={0.7}
                     colliders={false}
+                    onCollisionEnter={collisionEnter}
                 >
                     <CuboidCollider args={[0.5, 0.5, 0.5]} mass={1} />
                     <mesh castShadow onClick={cubeJump}>
